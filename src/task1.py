@@ -63,13 +63,24 @@ cv2.waitKey(0)
 cv2.destroyAllWindows()
 
 # Find connected pixels and groupd them into objects
-labels = measure.label(binary_image, 2)
+# I had to add a background filter here
+labels = measure.label(binary_image, connectivity=2, background=0)
 
 # Calculate features for each object; since we want to differentiate
 # between circular and oval shapes, the major and minor axes may help; we
 # will use also the centroid to annotate the final result
 features = measure.regionprops(labels)
+
+# filters out the background
+for feature in features:
+    minr, minc, maxr, maxc = feature.bbox
+    # If the region touches the border, skip it
+    if (minr == 0 or minc == 0 or maxr == labels.shape[0] or maxc == labels.shape[1]):
+        continue
+
 print("I found %d objects in total." % (len(features)))
+
+
 
 # In this task it is enough to calculate the ratio
 # between tha major and minor axes
