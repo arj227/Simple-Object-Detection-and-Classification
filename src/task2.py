@@ -19,12 +19,14 @@ plt.plot()
 # Read the image into grayscale
 currentDirectory = os.path.dirname(__file__)
 parentDirectory = os.path.join(currentDirectory, "..")
-savePath = os.path.join(parentDirectory, "output", "task1")
+savePath = os.path.join(parentDirectory, "output", "task2")
 imagePath = os.path.join(parentDirectory, "data", "breakfast2.png")
 print(imagePath)
 sample = cv2.imread(imagePath)
 
 sample_small = cv2.resize(sample, (640, 480))
+# grayScalePath = os.path.join(savePath, "greyScale.png")
+# cv2.imwrite(grayScalePath, sample_small)
 cv2.imshow('Grey scale image',sample_small)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
@@ -36,7 +38,9 @@ sample_h = sample_hsv[:, :, 0]
 
 # Show the H channel of the image
 sample_small = cv2.resize(sample_h, (640, 480))
-cv2.imshow('H channel of the image',sample_small)
+HChannelScalePath = os.path.join(savePath, "H_channel.png")
+cv2.imwrite(HChannelScalePath, sample_small)
+cv2.imshow('H channel of the image', sample_small)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
@@ -45,7 +49,10 @@ sample_grey = cv2.cvtColor(sample, cv2.COLOR_BGR2GRAY)
 
 # Show the grey scale image
 sample_small = cv2.resize(sample_grey, (640, 480))
-cv2.imshow('Grey scale image',sample_small)
+
+grayScalePath = os.path.join(savePath, "greyScale.png")
+cv2.imwrite(grayScalePath, sample_small)
+cv2.imshow('Grey scale image', sample_small)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
@@ -53,6 +60,8 @@ cv2.destroyAllWindows()
 ret1, binary_image = cv2.threshold(sample_grey, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
 sample_small = cv2.resize(binary_image, (640, 480))
+otsuScalePath = os.path.join(savePath, "otsu.png")
+cv2.imwrite(otsuScalePath, sample_small)
 cv2.imshow('Image after Otsu''s thresholding',sample_small)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
@@ -60,18 +69,6 @@ cv2.destroyAllWindows()
 
 
 # *** It's a good place to apply morphological opening, closing and erosion
-kernelOpen = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
-kernelClose = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-kernelErode = np.ones((5, 5),np.uint8)
-
-# morphological opening:
-# binary_image = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernelOpen)
-
-# morphological closing:
-binary_image = cv2.morphologyEx(binary_image, cv2.MORPH_CLOSE, kernelClose)
-
-binary_image = cv2.erode(binary_image, kernelErode, iterations = 3)
-binary_image = cv2.dilate(binary_image, kernelErode, iterations = 1)
 
 im_floodfill = binary_image.copy() 
 h, w = binary_image.shape[ : 2] 
@@ -80,7 +77,26 @@ cv2.floodFill(im_floodfill, mask, (0, 0), 255)
 im_floodfill_inv = cv2.bitwise_not(im_floodfill) 
 binary_image = binary_image | im_floodfill_inv   #bitwise OR operation
 
+kernelOpen = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
+kernelClose = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
+kernelErode = np.ones((6, 5),np.uint8)
+
+# morphological opening:
+binary_image = cv2.morphologyEx(binary_image, cv2.MORPH_OPEN, kernelOpen)
+
+# morphological closing:
+binary_image = cv2.morphologyEx(binary_image, cv2.MORPH_CLOSE, kernelClose)
+
+
+binary_image = cv2.erode(binary_image, kernelErode, iterations = 5)
+# binary_image = cv2.dilate(binary_image, kernelErode, iterations = 1)
+
+
+
 sample_small = cv2.resize(binary_image, (640, 480))
+
+MorphScalePath = os.path.join(savePath, "afterMorthological.png")
+cv2.imwrite(MorphScalePath, sample_small)
 cv2.imshow('Image after morphological transformation',sample_small)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
